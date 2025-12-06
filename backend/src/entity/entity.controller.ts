@@ -28,6 +28,7 @@ import {
 import type { Cache } from 'cache-manager';
 import { OffsetPaginationQueryDto } from 'src/common/pagination/dto/offset-pagination-query.dto';
 import { PaginatedResponseDto } from 'src/common/pagination/dto/paginated-response.dto';
+import { toEntityResponseDto } from './mappers/entity-response.mapper';
 
 @ApiTags('entities')
 @Controller('entities')
@@ -62,7 +63,7 @@ export class EntityController {
     this.logger.log(`Invalidating cache key 'all_submitted_entities'`);
     await this.cacheManager.del('all_submitted_entities');
 
-    return newEntity as EntityResponseDto;
+    return toEntityResponseDto(newEntity);
   }
 
   @Get()
@@ -82,7 +83,7 @@ export class EntityController {
     this.logger.log('Attempting to retrieve all entities.');
 
     const entities = await this.entityService.findAll();
-    return entities as EntityResponseDto[];
+    return entities.map(toEntityResponseDto);
   }
 
   @Get('paginated')
@@ -123,7 +124,7 @@ export class EntityController {
 
     return {
       ...result,
-      items: result.items as EntityResponseDto[],
+      items: result.items.map(toEntityResponseDto),
     };
   }
 }

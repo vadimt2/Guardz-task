@@ -1,5 +1,5 @@
 # Stage 1: Build the application (Uses a slightly larger image for building, based on Debian Slim)
-FROM node:20-slim AS build 
+FROM node:22-slim AS build 
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 
-FROM node:20-slim AS production
+FROM node:22-slim AS production
 
 WORKDIR /app
 

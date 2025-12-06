@@ -1,6 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsIn, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginationOrder } from '../pagination-order.enum';
+
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
 
 export class OffsetPaginationQueryDto {
   @ApiPropertyOptional({
@@ -21,16 +25,17 @@ export class OffsetPaginationQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  limit = 10;
+  @Max(MAX_LIMIT)
+  limit = DEFAULT_LIMIT;
 
   @ApiPropertyOptional({
     description: "Sort order of results: 'newest' or 'oldest'.",
-    example: 'newest',
-    enum: ['newest', 'oldest'],
+    example: PaginationOrder.Newest,
+    enum: PaginationOrder,
   })
   @IsOptional()
-  @IsIn(['newest', 'oldest'])
-  order: 'newest' | 'oldest' = 'newest';
+  @IsEnum(PaginationOrder)
+  order: PaginationOrder = PaginationOrder.Newest;
 
   @ApiPropertyOptional({
     description: 'Text search query to filter results.',

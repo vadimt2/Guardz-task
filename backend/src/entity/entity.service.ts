@@ -4,6 +4,7 @@ import { Repository, FindOptionsOrderValue, ILike } from 'typeorm';
 import { SubmittedEntity } from './submitted-entity.entity';
 import { CreateEntityDto } from './dto/create-entity.dto';
 import { OffsetPaginationQueryDto } from 'src/common/pagination/dto/offset-pagination-query.dto';
+import { PaginationOrder } from 'src/common/pagination/pagination-order.enum';
 
 @Injectable()
 export class EntityService {
@@ -23,7 +24,8 @@ export class EntityService {
   }> {
     const { offset, limit, order, search } = query;
 
-    const direction: FindOptionsOrderValue = order === 'newest' ? 'DESC' : 'ASC';
+    const direction: FindOptionsOrderValue =
+      order === PaginationOrder.Newest ? 'DESC' : 'ASC';
 
     const where = search ? { something: ILike(`%${search}%`) } : {};
 

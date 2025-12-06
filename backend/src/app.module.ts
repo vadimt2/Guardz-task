@@ -6,6 +6,9 @@ import { APP_FILTER } from '@nestjs/core';
 import * as redisStore from 'cache-manager-redis-store';
 import { EntityModule } from './entity/entity.module';
 import { LoggingExceptionFilter } from './common/filters/http-exception.filter';
+import { AppController } from './app.controller';
+import { TerminusModule } from '@nestjs/terminus';
+import { RedisHealthIndicator } from './health/redis.health';
 
 @Module({
   imports: [
@@ -41,8 +44,12 @@ import { LoggingExceptionFilter } from './common/filters/http-exception.filter';
     }),
 
     EntityModule,
+
+    TerminusModule,
   ],
+  controllers: [AppController],
   providers: [
+    RedisHealthIndicator,
     {
       provide: APP_FILTER,
       useClass: LoggingExceptionFilter,

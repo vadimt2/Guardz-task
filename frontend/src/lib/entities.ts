@@ -14,12 +14,21 @@ type ApiError = {
   errors?: string[];
 };
 
-async function parseOrThrow(response: Response) {
-  const errorBody = (await response.json().catch(() => ({}))) as ApiError;
-  const message =
-    errorBody.message || response.statusText || 'Unexpected server error';
-  const validation = errorBody.errors?.join(', ');
-  throw new Error(validation ? `${message}: ${validation}` : message);
+async function parseJsonOrThrow<T>(response: Response): Promise<T> {
+  const parsedBody = (await response.json().catch(() => ({}))) as
+    | T
+    | ApiError
+    | Record<string, unknown>;
+
+  if (!response.ok) {
+    const errorBody = parsedBody as ApiError;
+    const message =
+      errorBody.message || response.statusText || 'Unexpected server error';
+    const validation = errorBody.errors?.join(', ');
+    throw new Error(validation ? `${message}: ${validation}` : message);
+  }
+
+  return parsedBody as T;
 }
 
 type PaginatedQuery = {
@@ -45,11 +54,7 @@ export async function getEntitiesPaginated(
     next: { tags: ['entities'] },
   });
 
-  if (!response.ok) {
-    await parseOrThrow(response);
-  }
-
-  return response.json() as Promise<PaginatedEntitiesResponse>;
+  return parseJsonOrThrow<PaginatedEntitiesResponse>(response);
 }
 
 export async function getEntities(): Promise<EntityResponse[]> {
@@ -58,11 +63,7 @@ export async function getEntities(): Promise<EntityResponse[]> {
     next: { tags: ['entities'] },
   });
 
-  if (!response.ok) {
-    await parseOrThrow(response);
-  }
-
-  return response.json() as Promise<EntityResponse[]>;
+  return parseJsonOrThrow<EntityResponse[]>(response);
 }
 
 export async function createEntity(
@@ -76,9 +77,5 @@ export async function createEntity(
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    await parseOrThrow(response);
-  }
-
-  return response.json() as Promise<EntityResponse>;
+  return parseJsonOrThrow<EntityResponse>(response);
 }
